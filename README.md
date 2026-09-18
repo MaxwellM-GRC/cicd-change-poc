@@ -31,16 +31,16 @@ The sample deliberately includes seven issues:
 
 Only by connecting the release record to its approval, test, source, artifact, and cloud-side activity does the full picture emerge.
 
-## What it checks
+## What this control tests
 
-| Rule | Plain-English check | Flags | Severity |
-|---|---|---|---|
-| CM01 | Was the change independently approved first? | Missing, rejected, late, or self-approval | Critical |
-| CM02 | Did required testing pass before deployment? | Missing, failed, or late test result | High |
-| CM03 | Did the release come from a governed source change? | Missing, unprotected, or unverified commit | High |
-| CM04 | Was the exact approved software artifact deployed? | Missing or mismatched software digest | Critical |
-| CM05 | Did the pipeline release actually reach production? | No matching cloud execution record | High |
-| CM06 | Did every production cloud change come through CI/CD? | Direct AWS or Kubernetes change outside the pipeline | Critical |
+| Control | Control description | Severity |
+|---|---|---|
+| CM01 | Confirm each production change received independent approval before deployment. Flags missing, rejected, late, or self-approval. | Critical |
+| CM02 | Confirm required testing passed before deployment. Flags missing, failed, or late test results. | High |
+| CM03 | Confirm the release came from a governed source change. Flags missing, unprotected, or unverified commits. | High |
+| CM04 | Confirm the exact approved software artifact was deployed. Flags missing or mismatched software digests. | Critical |
+| CM05 | Confirm the pipeline release has matching production cloud activity. Flags a deployment with no cloud execution record. | High |
+| CM06 | Confirm every production cloud change came through CI/CD. Flags direct AWS or Kubernetes changes outside the pipeline. | Critical |
 
 ## How it works
 

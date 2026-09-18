@@ -12,6 +12,10 @@ control:
     cloud changes to approved pull or merge requests, successful pipelines,
     immutable artifacts, and authorized deployment identities, and investigates
     exceptions.
+  activity: >-
+    Reconcile production deployments and cloud changes to approval, test,
+    source, artifact, pipeline, identity, and incident evidence; investigate
+    and route validated exceptions for human resolution.
   objective: >-
     Production changes are authorized, tested, traceable to an immutable source
     commit and artifact, and deployed only through approved CI/CD pathways.

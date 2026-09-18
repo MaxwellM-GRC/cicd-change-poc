@@ -1,4 +1,4 @@
-"""Full-population evaluation of the 14 cloud change-management controls."""
+"""Full population evaluation of the 14 cloud change management controls."""
 
 from __future__ import annotations
 

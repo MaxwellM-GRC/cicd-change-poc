@@ -6,7 +6,7 @@
 
 Production changes move quickly. A deployment may look legitimate because it appears in GitHub Actions or GitLab CI, while a failed test, missing approval, or substituted software artifact is hidden in a separate record. At the same time, someone may make a direct AWS or Kubernetes change that never touches the pipeline at all.
 
-This POC brings those records together. It checks the full set of fictional production deployments and cloud changes, then produces an audit-ready exception log and one follow-up case for each issue it finds.
+This POC brings those records together. It checks the full set of fictional production deployments and cloud changes, then produces an audit ready exception log and one follow up case for each issue it finds.
 
 > ⚠️ **Sanitized.** All names, people, repositories, cloud resources, account numbers, and source locations in this repository are fictional. No real employer, client, or production data is included.
 
@@ -65,7 +65,7 @@ AWS / Kubernetes changes ────┘                         every change   
 - **Input validation** checks that every expected file is present, complete, and unchanged since it was collected. If a source is missing or altered, the review stops rather than reporting a misleading clean result.
 - **Evidence matching** follows each deployment from approval through test, source code, built software, and its production cloud activity.
 - **Reverse matching** starts with each AWS or Kubernetes production change and asks whether it can be traced back to a release pipeline.
-- **Reporting** writes a simple exception log, a detailed run summary, and one human-owned case for every actionable finding.
+- **Reporting** writes a simple exception log, a detailed run summary, and one human owned case for every actionable finding.
 
 For higher-risk paths, the review also confirms that independent review happened before merge, emergency changes receive review within the configured 24-hour period, and cloud activity agrees with the pipeline run, software digest, deployment identity, and release time.
 
@@ -107,7 +107,7 @@ The generated files are the evidence package:
 output/
   control_evidence.json   Detailed run summary, population counts, and source checks
   exceptions.csv          One straightforward row per finding
-  cases/CM-*.md           One follow-up case per finding, with closure checklist
+  cases/CM-*.md           One follow up case per finding, with closure checklist
 ```
 
 The review exits with `0` when it runs successfully. With `--fail-on-findings`, it exits with `2` when it detects exceptions. An input problem returns `3`, so a failed evidence check cannot be mistaken for a clean review.

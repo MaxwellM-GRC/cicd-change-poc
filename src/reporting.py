@@ -1,4 +1,4 @@
-"""Produce reproducible RCM-ready evidence and per-finding case files."""
+"""Produce reproducible RCM ready evidence and per finding case files."""
 
 from __future__ import annotations
 
@@ -101,5 +101,4 @@ def print_summary(result: ReviewResult) -> None:
     for finding in result.findings:
         print(f"[{finding.severity.upper()}] {finding.rule} {finding.platform} "
               f"{finding.object_id}: {finding.detail}")
-
 

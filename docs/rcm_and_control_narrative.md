@@ -7,10 +7,10 @@
 | Control ID | `ITGC-CM-01` |
 | Risk | Unauthorized, untested, or untraceable production changes could compromise financial-system processing, security, or availability. |
 | Objective | Production changes are authorized, tested, traceable to an immutable source commit and artifact, and deployed only through approved CI/CD pathways. |
-| Activity | Daily automated full-population correlation of production deployments, CI/CD evidence, artifact provenance, and production control-plane changes; exceptions receive individual human-owned cases. |
+| Activity | Daily automated full population correlation of production deployments, CI/CD evidence, artifact provenance, and production control plane changes; exceptions receive individual human owned cases. |
 | Frequency | Daily |
 | Type | Automated detective ITGC with human corrective action |
-| Nature | Full-population, two-direction reconciliation; no sampling |
+| Nature | Full population, two-direction reconciliation; no sampling |
 | Evidence | Source manifest, validated extracts, assertion ledger, exception log, individual cases, workflow run, repository commit |
 | Owner | Control owner in `config.yaml` |
 | Systems | Fictional GitHub Actions, AWS, GitLab CI, Kubernetes, and OCI registries |
@@ -63,7 +63,7 @@ complementary completeness assertion.
 ## Change management over this control
 
 The evaluator is itself change-managed. `CODEOWNERS` marks configuration,
-detection logic, integrity checks, and workflows for control-owner review.
+detection logic, integrity checks, and workflows for control owner review.
 Repository settings should require pull requests, passing CI, code-owner
 approval, conversation resolution, and no force pushes to `main`. Version
 history plus the retained commit SHA identifies what logic operated each run.

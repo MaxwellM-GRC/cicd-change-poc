@@ -3,7 +3,7 @@
 ## Purpose
 
 The evidence package is designed to support design evaluation, operating
-effectiveness testing, re-performance, and exception follow-up for control
+effectiveness testing, re performance, and exception follow up for control
 `ITGC-CM-01`. A reviewer should be able to answer four questions without
 reconstructing the run from console output:
 
@@ -61,7 +61,7 @@ one case per stable finding ID. The ID is derived from control, rule, platform,
 object type, and object ID; it intentionally excludes run time and narrative so
 the same unresolved condition is maintained across runs.
 
-## Re-performance
+## Re performance
 
 The deterministic run ID hashes the control configuration and all retained
 source hashes. Identical inputs and parameters produce the same ID and findings.

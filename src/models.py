@@ -1,4 +1,4 @@
-"""Normalized records and RCM-ready control result structures."""
+"""Normalized records and RCM ready control result structures."""
 
 from __future__ import annotations
 
@@ -103,5 +103,4 @@ class ReviewResult:
     def population_reconciled(self) -> bool:
         evaluated_ids = {row["deployment_id"] for row in self.evaluations}
         return len(evaluated_ids) == self.deployment_count
-
 

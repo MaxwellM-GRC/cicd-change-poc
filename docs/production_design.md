@@ -37,7 +37,7 @@ through the repository's governed change process.
 
 Emergency changes should not be silently excluded. Identify them in the
 complete population and test their distinct authorization, retrospective
-review, and time-bound follow-up requirements.
+review, and time bound follow up requirements.
 
 ## Remediation safety
 

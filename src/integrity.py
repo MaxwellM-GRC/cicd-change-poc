@@ -1,4 +1,4 @@
-"""Fail-closed source-provenance and input completeness checks."""
+"""Fail closed source provenance and input completeness checks."""
 
 from __future__ import annotations
 
@@ -79,5 +79,4 @@ def validate_sources(config: dict, root: Path, manifest_path: Path) -> list[Sour
     if unexpected and statuses:
         statuses[0].errors.append(f"unexpected manifest source(s): {sorted(unexpected)}")
     return statuses
-
 

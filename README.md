@@ -36,7 +36,7 @@ Only by connecting the release record to its approval, test, source, artifact, a
 
 ## What this control tests
 
-| Control | Control description | Severity |
+| Control ID | Control description | Severity |
 |---|---|---|
 | CM-01 | Confirm every production deployment maps to an approved pull or merge request. | Critical |
 | CM-02 | Confirm required independent review occurred before merge. | High |

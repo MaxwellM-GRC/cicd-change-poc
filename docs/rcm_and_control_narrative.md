@@ -30,12 +30,20 @@ individually for human investigation, disposition, and closure approval.
 
 | Rule | Source evidence | Join | Failure condition |
 |---|---|---|---|
-| CM01 | Environment or merge approval | Deployment ID | Missing/rejected, self-approved, or after deployment |
-| CM02 | Workflow check or pipeline test | Run ID | Missing, non-passing, or after deployment |
-| CM03 | Commit and protection metadata | Commit SHA | Missing, unprotected, or signature unverified |
-| CM04 | Registry/build provenance | Run ID + digest + commit SHA | Any mismatch or missing lineage |
-| CM05 | CloudTrail/Kubernetes mutation | Run ID | Deployment has no cloud execution record |
-| CM06 | Deployment population | Cloud event run ID | Cloud mutation has no in-scope deployment |
+| CM-01 | Pull or merge request evidence | Deployment ID | No approved pull or merge request |
+| CM-02 | Merge review evidence | Pull or merge request ID | No timely independent review |
+| CM-03 | Workflow or pipeline test | Run ID | Missing, non-passing, or late test |
+| CM-04 | Approved merge SHA | Deployment ID + commit SHA | Deployed SHA differs from approved SHA |
+| CM-05 | Authorized pipeline record | Deployment ID | Unapproved pipeline or manual path |
+| CM-06 | Production environment approval | Deployment ID | Missing, rejected, or late approval |
+| CM-07 | Author and approver evidence | Deployment ID | Developer approved their own change |
+| CM-08 | Deployment identity authorization | Deployment ID | Identity is unauthorized for production |
+| CM-09 | Emergency-change review | Deployment ID | No timely retrospective review |
+| CM-10 | Pipeline/control-definition change record | Change ID | No heightened review evidence |
+| CM-11 | CloudTrail/Kubernetes audit event | Cloud event run ID | Cloud mutation has no in-scope deployment |
+| CM-12 | Registry/build provenance | Run ID + digest + commit SHA | Any missing or mismatched lineage |
+| CM-13 | Branch/environment protection snapshot | Platform | Required protection is disabled |
+| CM-14 | Deployment outcome and incident record | Deployment ID | Failed or rolled-back change lacks resolution |
 
 ## IPE completeness and accuracy
 
@@ -69,17 +77,14 @@ be approved by the responsible compliance function.
 
 ## Seeded exceptions
 
-The sample period contains seven expected findings so reviewers can observe the
-end-to-end case contract:
+The sample period contains fourteen expected findings so reviewers can observe
+the end-to-end case contract across every control:
 
-- rejected GitHub/AWS approval;
-- failed GitHub Actions test;
-- GitHub/AWS artifact-digest mismatch;
-- GitLab/Kubernetes self-approval;
-- GitLab commit without protected-branch or verified-signature evidence;
-- one out-of-band AWS IAM policy change; and
-- one out-of-band Kubernetes ConfigMap change.
+- unapproved pull request, mismatched approved SHA, and rejected AWS approval;
+- failed CI test, emergency deployment without retrospective review, artifact mismatch, and unresolved rollback;
+- unauthorized GitLab pipeline, self-approval, self-review, and unauthorized deployment identity;
+- pipeline-definition change without heightened review and missing protection; and
+- one out-of-band AWS IAM policy change.
 
 These make the monitoring workflow red by design. CI remains green because it
 tests code health, not whether the fictional exception population is clean.
-

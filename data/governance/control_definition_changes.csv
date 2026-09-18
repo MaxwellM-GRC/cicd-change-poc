@@ -1,0 +1,4 @@
+change_id,platform,target,changed_at,heightened_review,reviewer
+ctrl-aws-001,github_aws,.github/workflows/deploy.yml,2026-08-03T12:00:00Z,true,marcus.lee
+ctrl-k8s-001,gitlab_k8s,.gitlab-ci.yml,2026-08-12T12:00:00Z,false,
+

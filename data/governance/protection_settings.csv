@@ -1,0 +1,4 @@
+setting_id,platform,branch_protection,environment_protection,checked_at
+protect-aws-001,github_aws,true,true,2026-09-01T01:20:00Z
+protect-k8s-001,gitlab_k8s,false,true,2026-09-01T01:20:00Z
+

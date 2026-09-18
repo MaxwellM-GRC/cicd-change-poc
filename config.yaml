@@ -85,54 +85,49 @@ sources:
     path: data/kubernetes/production_changes.csv
     primary_key: event_id
     required_columns: [event_id, changed_at, resource, action, actor, run_id, artifact_digest]
+  - id: github_aws_governance
+    kind: governance
+    platform: github_aws
+    path: data/governance/github_aws.csv
+    primary_key: deployment_id
+    required_columns: [deployment_id, pr_id, pr_status, merged_sha, author, reviewer, review_status, reviewed_at, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
+  - id: gitlab_k8s_governance
+    kind: governance
+    platform: gitlab_k8s
+    path: data/governance/gitlab_k8s.csv
+    primary_key: deployment_id
+    required_columns: [deployment_id, pr_id, pr_status, merged_sha, author, reviewer, review_status, reviewed_at, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
+  - id: control_definition_changes
+    kind: control_definition_changes
+    platform: shared
+    path: data/governance/control_definition_changes.csv
+    primary_key: change_id
+    required_columns: [change_id, platform, target, changed_at, heightened_review, reviewer]
+  - id: protection_settings
+    kind: protection_settings
+    platform: shared
+    path: data/governance/protection_settings.csv
+    primary_key: setting_id
+    required_columns: [setting_id, platform, branch_protection, environment_protection, checked_at]
 
 rules:
-  CM01_APPROVAL:
-    severity: critical
-    assertion: Deployment has an independent, approved authorization completed before production deployment.
-    remediation: Obtain retrospective risk acceptance or roll back the change; route future releases through the required approval gate.
-    lookback: Review activity and security telemetry from deployment time through containment for unauthorized impact.
-    root_cause: Determine how the production environment protection or approval gate was bypassed.
-    closure_evidence: Approved change record or rollback evidence, impact assessment, and corrected gate configuration.
-  CM02_TESTING:
-    severity: high
-    assertion: Required CI tests passed before production deployment.
-    remediation: Human change owner decides whether to roll back, hot-fix, or accept risk after reviewing failed or missing tests.
-    lookback: Re-run the required test suite against the deployed commit and assess production impact.
-    root_cause: Determine why a failed, late, or missing test result did not block deployment.
-    closure_evidence: Passing test run tied to the commit plus reviewer-approved disposition of the deployed version.
-  CM03_COMMIT:
-    severity: high
-    assertion: Deployment traces to a commit on a protected branch with verified provenance.
-    remediation: Human reviewer validates source ownership and selects rollback or formal exception treatment.
-    lookback: Compare the deployed artifact to repository contents and inspect commit activity.
-    root_cause: Determine why branch or signature controls did not prevent the release.
-    closure_evidence: Verified commit provenance, protected-branch evidence, and approved remediation decision.
-  CM04_ARTIFACT:
-    severity: critical
-    assertion: Deployed digest exactly matches an immutable artifact built from the approved commit and run.
-    remediation: Quarantine the artifact; human release owner approves rollback or redeployment of a verified digest.
-    lookback: Inspect registry access and deployments using the suspect digest.
-    root_cause: Determine whether build, registry, or deployment substitution controls failed.
-    closure_evidence: Registry attestation, digest match, and human approval for the selected corrective action.
-  CM05_DEPLOYMENT_TRACE:
-    severity: high
-    assertion: Each CI/CD deployment is represented by a matching production control-plane change.
-    remediation: Investigate the missing execution evidence and have the release owner approve rollback, redeployment, or documented exception.
-    lookback: Query control-plane audit logs for the full review window and validate resource state.
-    root_cause: Determine whether logging, deployment execution, or evidence collection failed.
-    closure_evidence: Matched immutable audit event or approved exception with resource-state evidence.
-  CM06_OUT_OF_BAND:
-    severity: critical
-    assertion: Every production control-plane change maps to an authorized CI/CD deployment.
-    remediation: Contain the change if unsafe; a human control owner approves rollback, adoption into code, or time-bounded exception.
-    lookback: Review actor activity and all related production changes during the review window.
-    root_cause: Determine how direct production access bypassed CI/CD and whether privileges must be removed.
-    closure_evidence: Audit-log investigation, approved disposition, state reconciliation, and access-control correction.
+  CM-01: {severity: critical, assertion: Every production deployment maps to an approved pull or merge request.}
+  CM-02: {severity: high, assertion: Required independent review occurred before merge.}
+  CM-03: {severity: high, assertion: Required CI checks passed for the deployed commit.}
+  CM-04: {severity: critical, assertion: Deployed commit SHA matches the reviewed and approved SHA.}
+  CM-05: {severity: critical, assertion: Deployment used an authorized pipeline rather than an unapproved manual path.}
+  CM-06: {severity: critical, assertion: Production deployment approval occurred before release where required.}
+  CM-07: {severity: high, assertion: Developer did not solely approve and deploy their own change.}
+  CM-08: {severity: high, assertion: Deployment identity was authorized for the production environment.}
+  CM-09: {severity: high, assertion: Emergency deployment received retrospective review timely.}
+  CM-10: {severity: high, assertion: Pipeline or infrastructure-control definition changes received heightened review.}
+  CM-11: {severity: critical, assertion: Production cloud changes made outside the pipeline were detected.}
+  CM-12: {severity: critical, assertion: Artifact provenance links source commit to build to deployed artifact.}
+  CM-13: {severity: high, assertion: Branch and environment protections remain configured as required.}
+  CM-14: {severity: medium, assertion: Failed or rolled-back deployments have a linked incident or resolution record.}
 
 remediation:
   mode: human_approval_required
   issue_sla_days: 5
   escalation_owner: "@MaxwellM-GRC"
   prohibited_actions: [automatic_rollback, automatic_resource_mutation, automatic_exception_closure]
-

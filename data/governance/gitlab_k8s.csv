@@ -1,0 +1,5 @@
+deployment_id,pr_id,pr_status,merged_sha,author,reviewer,review_status,reviewed_at,pipeline_authorized,deployment_identity,identity_authorized,is_emergency,retrospective_review_at,outcome,incident_id
+gl-k8s-001,MR-701,approved,b111111111111111111111111111111111111111,nadia.ross,wei.chen,approved,2026-08-07T10:40:00Z,true,gitlab-deployer,true,false,,succeeded,
+gl-k8s-002,MR-702,approved,b222222222222222222222222222222222222222,sam.okoro,wei.chen,approved,2026-08-16T19:20:00Z,false,gitlab-deployer,true,false,,succeeded,
+gl-k8s-003,MR-703,approved,b333333333333333333333333333333333333333,ines.silva,ines.silva,approved,2026-08-24T16:00:00Z,true,gitlab-deployer,false,false,,succeeded,
+

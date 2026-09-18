@@ -120,8 +120,35 @@
       "window_start": "2026-08-01T00:00:00Z",
       "window_end": "2026-08-31T23:59:59Z",
       "row_count": 4,
-      "sha256": "80ca839bfde657b607e7069b616e4552c26322dfd0345f8c1270826e6c186241"
+      "sha256": "8560267ca0f9d693a277ffb46006a845dd80253ffd43fc7234cc07ca3273c92d"
+    },
+    {
+      "source_id": "github_aws_governance",
+      "source_uri": "github://acme-fictional/pull-requests-and-environment-policy",
+      "query": "review, approval, pipeline, identity, emergency, and outcome evidence for every production deployment",
+      "extracted_at": "2026-09-01T01:16:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3, "sha256": "7e93b2cd5859580608ae6dfc856ec5f83c7cd7eef9ba2824efee521962dd7288"
+    },
+    {
+      "source_id": "gitlab_k8s_governance",
+      "source_uri": "gitlab://acme-fictional/merge-requests-and-environment-policy",
+      "query": "review, approval, pipeline, identity, emergency, and outcome evidence for every production deployment",
+      "extracted_at": "2026-09-01T01:17:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3, "sha256": "001abaea86cda65763e8a50aae8ae9e715e7a6d69e77f55b7640ff685b6b68ea"
+    },
+    {
+      "source_id": "control_definition_changes",
+      "source_uri": "git://acme-fictional/control-definition-change-log",
+      "query": "all production pipeline and infrastructure-control definition changes in the review window",
+      "extracted_at": "2026-09-01T01:18:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 2, "sha256": "4109009da448d8e6b2bad5d25e0f806d8a271491a684982d7c9910bb3b8b2f7c"
+    },
+    {
+      "source_id": "protection_settings",
+      "source_uri": "github-and-gitlab://acme-fictional/protection-settings-snapshot",
+      "query": "required branch and production environment protection settings for every platform",
+      "extracted_at": "2026-09-01T01:19:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 2, "sha256": "b26e6c4ef8171dfb6d1dd7cd90137950ba895cc86cb4b033222f41e58fe5e0fb"
     }
   ]
 }
-

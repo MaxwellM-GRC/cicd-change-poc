@@ -21,13 +21,16 @@ The sample data includes two fictional release paths:
 
 Reviewing each source on its own can make a change look clean. For example, a deployment record may exist even though the required test failed, or an AWS role may be changed directly from the console with no deployment record at all.
 
-The sample deliberately includes seven issues:
+The sample deliberately includes fourteen issues, covering every control in the rule set:
 
-- a rejected approval and a self-approval;
-- a failed test;
+- an unapproved pull request, rejected deployment approval, and self-approval;
+- a failed test and a self-reviewed merge request;
+- an unauthorized pipeline and deployment identity;
+- an emergency release without retrospective review;
+- an unreviewed pipeline-definition change and missing branch protection;
 - a mismatch between the deployed software and the recorded build artifact;
-- a source commit that lacks the expected protection evidence; and
-- two direct cloud changes with no corresponding release pipeline.
+- a rolled-back deployment without an incident record; and
+- a direct cloud change with no corresponding release pipeline.
 
 Only by connecting the release record to its approval, test, source, artifact, and cloud-side activity does the full picture emerge.
 
@@ -35,12 +38,20 @@ Only by connecting the release record to its approval, test, source, artifact, a
 
 | Control | Control description | Severity |
 |---|---|---|
-| CM01 | Confirm each production change received independent approval before deployment. Flags missing, rejected, late, or self-approval. | Critical |
-| CM02 | Confirm required testing passed before deployment. Flags missing, failed, or late test results. | High |
-| CM03 | Confirm the release came from a governed source change. Flags missing, unprotected, or unverified commits. | High |
-| CM04 | Confirm the exact approved software artifact was deployed. Flags missing or mismatched software digests. | Critical |
-| CM05 | Confirm the pipeline release has matching production cloud activity. Flags a deployment with no cloud execution record. | High |
-| CM06 | Confirm every production cloud change came through CI/CD. Flags direct AWS or Kubernetes changes outside the pipeline. | Critical |
+| CM-01 | Confirm every production deployment maps to an approved pull or merge request. | Critical |
+| CM-02 | Confirm required independent review occurred before merge. | High |
+| CM-03 | Confirm required CI checks passed for the deployed commit. | High |
+| CM-04 | Confirm the deployed commit SHA matches the reviewed and approved SHA. | Critical |
+| CM-05 | Confirm the deployment used an authorized pipeline rather than an unapproved manual path. | Critical |
+| CM-06 | Confirm production deployment approval occurred before release, where required. | Critical |
+| CM-07 | Confirm the developer did not solely approve and deploy their own change. | High |
+| CM-08 | Confirm the deployment identity was authorized for production. | High |
+| CM-09 | Confirm an emergency deployment received retrospective review timely. | High |
+| CM-10 | Confirm pipeline or infrastructure-control definition changes received heightened review. | High |
+| CM-11 | Confirm production cloud changes made outside the pipeline were detected. | Critical |
+| CM-12 | Confirm artifact provenance links source commit, build, and deployed artifact. | Critical |
+| CM-13 | Confirm branch and environment protections remain configured as required. | High |
+| CM-14 | Confirm failed or rolled-back deployments have a linked incident or resolution record. | Medium |
 
 ## How it works
 
@@ -78,13 +89,13 @@ CLOUD CI/CD CHANGE-MANAGEMENT CONTROL
 Production deployments evaluated: 6
 Production cloud changes reviewed: 8
 Population reconciled: True
-Findings: 7 ({'critical': 5, 'high': 2})
+Findings: 14 ({'critical': 6, 'high': 7, 'medium': 1})
 
-[CRITICAL] CM01_APPROVAL github_aws gha-aws-002
-           No independent approved authorization completed before deployment.
-[HIGH]     CM02_TESTING github_aws gha-aws-003
-           Required tests were missing, failed, or completed after deployment.
-[CRITICAL] CM06_OUT_OF_BAND github_aws ct-9004
+[CRITICAL] CM-01 github_aws gha-aws-002
+           Deployment does not map to an approved pull or merge request.
+[HIGH]     CM-03 github_aws gha-aws-003
+           Required CI checks were missing, failed, or completed after deployment.
+[CRITICAL] CM-11 github_aws ct-9004
            Production change ... does not map to any in-scope CI/CD deployment.
 ```
 

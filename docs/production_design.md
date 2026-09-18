@@ -53,8 +53,8 @@ scope for this repository.
 - ISO timestamp strings are directly comparable because every fixture uses UTC
   and the same canonical format; production should parse timezone-aware values.
 - One aggregate test result represents the required test policy.
-- Pipeline run ID is the primary cloud-to-CI correlation key; production may
-  require signed deployment attestations and resource-specific correlation.
+- The POC reconciles cloud activity using run ID, artifact digest, deployment
+  identity, and a configured time window; production should additionally use
+  signed deployment attestations and resource-specific correlation.
 - GitHub repository settings such as branch protection are operational setup,
   not enforceable from source files alone.
-

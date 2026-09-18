@@ -1,4 +1,4 @@
-deployment_id,pr_id,pr_status,merged_sha,author,reviewer,review_status,reviewed_at,pipeline_authorized,deployment_identity,identity_authorized,is_emergency,retrospective_review_at,outcome,incident_id
-gha-aws-001,PR-501,approved,a111111111111111111111111111111111111111,elena.park,marcus.lee,approved,2026-08-05T13:20:00Z,true,gha-prod-role,true,false,,succeeded,
-gha-aws-002,PR-502,unapproved,a222222222222222222222222222222222222220,devon.king,priya.shah,approved,2026-08-14T08:55:00Z,true,gha-prod-role,true,false,,succeeded,
-gha-aws-003,PR-503,approved,a333333333333333333333333333333333333333,omar.haddad,jules.martin,approved,2026-08-22T17:55:00Z,true,gha-prod-role,true,true,,rolled_back,
+deployment_id,pr_id,pr_status,merged_at,merged_sha,author,reviewer,review_status,reviewed_at,deploy_initiator,pipeline_authorized,deployment_identity,identity_authorized,is_emergency,retrospective_review_at,outcome,incident_id
+gha-aws-001,PR-501,merged,2026-08-05T13:30:00Z,a111111111111111111111111111111111111111,elena.park,marcus.lee,approved,2026-08-05T13:20:00Z,elena.park,true,gha-prod-role,true,false,,succeeded,
+gha-aws-002,PR-502,unapproved,2026-08-14T09:00:00Z,a222222222222222222222222222222222222220,devon.king,priya.shah,approved,2026-08-14T08:55:00Z,devon.king,true,gha-prod-role,true,false,,succeeded,
+gha-aws-003,PR-503,merged,2026-08-22T18:00:00Z,a333333333333333333333333333333333333333,omar.haddad,jules.martin,approved,2026-08-22T17:55:00Z,omar.haddad,true,gha-prod-role,true,true,,rolled_back,

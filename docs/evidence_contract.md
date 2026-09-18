@@ -38,10 +38,12 @@ GitLab plus all production mutation events from CloudTrail and Kubernetes audit
 logs. Approval, test, commit, and artifact sources are supporting evidence.
 
 The forward join begins with each deployment and records a pass/fail result for
-all deployment-specific assertions. The reverse join begins with each cloud change
-and verifies that its pipeline run exists in the deployment population. This
-two-direction design detects both incomplete deployment evidence and changes
-made outside CI/CD.
+all deployment-specific assertions. Merge review must precede merge, and an
+emergency retrospective review must fall inside the configured response window.
+The reverse join begins with each cloud change and verifies its pipeline run,
+artifact digest, authorized deployment identity, and proximity to the deployment
+time. This two-direction design detects both incomplete deployment evidence and
+changes made outside CI/CD.
 
 ## Outputs
 
@@ -69,7 +71,8 @@ the exact code version used.
 
 ## Human decision boundary
 
-Rule guidance is advisory. Every case requires a named human to approve the
+Rule guidance is advisory and is tailored to the control that raised the case.
+Every case requires a named human to approve the
 rollback, redeployment, risk acceptance, or other disposition and to approve
 closure evidence. The configured policy explicitly prohibits automatic
 rollback, production mutation, and automatic closure.

@@ -12,6 +12,10 @@ review_window:
   start: "2026-08-01T00:00:00Z"
   end: "2026-08-31T23:59:59Z"
 
+control_parameters:
+  emergency_review_sla_hours: 24
+  cloud_reconciliation_window_minutes: 30
+
 sources:
   - id: github_aws_deployments
     kind: deployments
@@ -90,13 +94,13 @@ sources:
     platform: github_aws
     path: data/governance/github_aws.csv
     primary_key: deployment_id
-    required_columns: [deployment_id, pr_id, pr_status, merged_sha, author, reviewer, review_status, reviewed_at, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
+    required_columns: [deployment_id, pr_id, pr_status, merged_at, merged_sha, author, reviewer, review_status, reviewed_at, deploy_initiator, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
   - id: gitlab_k8s_governance
     kind: governance
     platform: gitlab_k8s
     path: data/governance/gitlab_k8s.csv
     primary_key: deployment_id
-    required_columns: [deployment_id, pr_id, pr_status, merged_sha, author, reviewer, review_status, reviewed_at, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
+    required_columns: [deployment_id, pr_id, pr_status, merged_at, merged_sha, author, reviewer, review_status, reviewed_at, deploy_initiator, pipeline_authorized, deployment_identity, identity_authorized, is_emergency, retrospective_review_at, outcome, incident_id]
   - id: control_definition_changes
     kind: control_definition_changes
     platform: shared
@@ -125,6 +129,22 @@ rules:
   CM-12: {severity: critical, assertion: Artifact provenance links source commit to build to deployed artifact.}
   CM-13: {severity: high, assertion: Branch and environment protections remain configured as required.}
   CM-14: {severity: medium, assertion: Failed or rolled-back deployments have a linked incident or resolution record.}
+
+rule_responses:
+  CM-01: {remediation: "Pause further releases from the affected change and obtain a documented approval or approved rollback decision.", lookback: "Review related releases and merge activity for the review period.", root_cause: "Determine why an unapproved pull or merge request reached production.", closure_evidence: "Approved request evidence or approved rollback and impact assessment."}
+  CM-02: {remediation: "Obtain independent review before the change is merged or formally approve a retrospective exception.", lookback: "Review reviewer history and merge timing.", root_cause: "Determine why review protection did not block merge.", closure_evidence: "Independent review record and corrected protection evidence."}
+  CM-03: {remediation: "Have a human release owner decide on rollback, hot-fix, or documented risk acceptance.", lookback: "Re-run required checks against the deployed commit.", root_cause: "Determine why failed or missing checks did not block release.", closure_evidence: "Passing checks and approved disposition."}
+  CM-04: {remediation: "Validate source ownership and approve rollback or redeployment of the reviewed commit.", lookback: "Compare deployed, merged, and approved commit records.", root_cause: "Determine why commit lineage diverged.", closure_evidence: "Matching commit evidence and human-approved disposition."}
+  CM-05: {remediation: "Contain unapproved delivery paths and approve rollback or adoption into the authorized pipeline.", lookback: "Review pipeline executions and production access activity.", root_cause: "Determine how an unauthorized path was available.", closure_evidence: "Authorized pipeline record and access-control correction."}
+  CM-06: {remediation: "Obtain retrospective risk approval or roll back the release.", lookback: "Review activity from deployment through containment.", root_cause: "Determine why the production approval gate was bypassed.", closure_evidence: "Approval or rollback evidence and impact assessment."}
+  CM-07: {remediation: "Require an independent approver and review the affected change for conflict-of-interest risk.", lookback: "Review author, approver, and deployment-initiator activity.", root_cause: "Determine why separation-of-duties controls did not operate.", closure_evidence: "Independent approval and corrected role or policy evidence."}
+  CM-08: {remediation: "Remove or restrict the unauthorized deployment identity.", lookback: "Review all production actions by the identity.", root_cause: "Determine why the identity had an unauthorized path.", closure_evidence: "Updated authorization policy and access review."}
+  CM-09: {remediation: "Complete and approve the emergency change review immediately.", lookback: "Assess emergency-change impact and authorization.", root_cause: "Determine why retrospective review missed its deadline.", closure_evidence: "Approved retrospective review and corrective action."}
+  CM-10: {remediation: "Obtain heightened independent review before relying on the changed control definition.", lookback: "Review all releases affected by the definition change.", root_cause: "Determine why heightened-review requirements were bypassed.", closure_evidence: "Independent review and corrected protection settings."}
+  CM-11: {remediation: "Contain unsafe direct changes; approve rollback, adoption into code, or a time-bound exception.", lookback: "Investigate the actor, resource state, and related cloud activity.", root_cause: "Determine how cloud access bypassed CI/CD.", closure_evidence: "Audit investigation, approved disposition, and access-control correction."}
+  CM-12: {remediation: "Quarantine the suspect artifact and approve rollback or redeployment of a verified digest.", lookback: "Inspect registry access and deployments using the digest.", root_cause: "Determine whether build, registry, or deployment controls failed.", closure_evidence: "Artifact attestation, digest match, and human approval."}
+  CM-13: {remediation: "Restore required branch and environment protections.", lookback: "Review changes made while protection was absent.", root_cause: "Determine why configuration monitoring did not prevent drift.", closure_evidence: "Protection snapshot and approved configuration change record."}
+  CM-14: {remediation: "Open or link an incident or resolution record and assign an owner.", lookback: "Review failure, rollback, and business impact.", root_cause: "Determine why the release failed and follow-up was not linked.", closure_evidence: "Linked incident or resolution with approved closure."}
 
 remediation:
   mode: human_approval_required

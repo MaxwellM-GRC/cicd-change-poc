@@ -67,6 +67,8 @@ AWS / Kubernetes changes ────┘                         every change   
 - **Reverse matching** starts with each AWS or Kubernetes production change and asks whether it can be traced back to a release pipeline.
 - **Reporting** writes a simple exception log, a detailed run summary, and one human-owned case for every actionable finding.
 
+For higher-risk paths, the review also confirms that independent review happened before merge, emergency changes receive review within the configured 24-hour period, and cloud activity agrees with the pipeline run, software digest, deployment identity, and release time.
+
 Every run records where its data came from, the period reviewed, row counts, and a file fingerprint. This lets a reviewer see what was checked and re-perform the same review later.
 
 ## Quick start
@@ -121,6 +123,8 @@ This is designed to run repeatedly, not just once.
 A red Change Control Monitor run is expected with the included sample data: the sample is intentionally seeded with exceptions. The red status is the alert; the uploaded evidence and individual Issues show what needs attention.
 
 Automation can identify and route an issue, but it cannot make a production change, approve a risk decision, or close a case. Those steps require a human owner.
+
+When a previously observed finding is absent from a later run, its Issue is labeled `human-closure-review`. The control intentionally does not close it automatically: a human must verify remediation and approve closure.
 
 ## Repository map
 

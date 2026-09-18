@@ -2,4 +2,4 @@ event_id,changed_at,resource,action,actor,run_id,artifact_digest
 k8s-8001,2026-08-07T11:20:04Z,prod/deployment/fulfillment-api,patch,gitlab-deployer,gl-pipe-701,sha256:k8s111
 k8s-8002,2026-08-16T20:05:03Z,prod/deployment/inventory-worker,patch,gitlab-deployer,gl-pipe-702,sha256:k8s222
 k8s-8003,2026-08-24T16:40:05Z,prod/deployment/pricing-api,patch,gitlab-deployer,gl-pipe-703,sha256:k8s333
-k8s-8004,2026-08-29T06:12:44Z,prod/configmap/payment-routing,patch,gitlab-deployer,gl-pipe-703,sha256:k8s333
+k8s-8004,2026-08-24T16:40:10Z,prod/configmap/payment-routing,patch,gitlab-deployer,gl-pipe-703,sha256:k8s333

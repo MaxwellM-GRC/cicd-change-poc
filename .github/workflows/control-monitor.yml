@@ -45,7 +45,7 @@ jobs:
           print(f"has_findings={'true' if data['findings'] else 'false'}")
           PY
       - name: Maintain one exception issue per finding
-        if: always() && steps.result.outputs.input_valid == 'true' && steps.result.outputs.has_findings == 'true'
+        if: always() && steps.result.outputs.input_valid == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -53,6 +53,7 @@ jobs:
             const evidence = JSON.parse(fs.readFileSync('output/control_evidence.json', 'utf8'));
             const { owner, repo } = context.repo;
             const label = 'change-control-exception';
+            const closureReviewLabel = 'human-closure-review';
             try {
               await github.rest.issues.getLabel({ owner, repo, name: label });
             } catch (_) {
@@ -61,9 +62,18 @@ jobs:
                 description: 'Automated production change-management exception'
               });
             }
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: closureReviewLabel });
+            } catch (_) {
+              await github.rest.issues.createLabel({
+                owner, repo, name: closureReviewLabel, color: 'fbca04',
+                description: 'Finding no longer observed; human closure review required'
+              });
+            }
             const issues = await github.paginate(github.rest.issues.listForRepo, {
               owner, repo, state: 'all', labels: label, per_page: 100
             });
+            const observed = new Set(evidence.findings.map(finding => finding.finding_id));
             for (const finding of evidence.findings) {
               const marker = `<!-- finding-id:${finding.finding_id} -->`;
               const body = [
@@ -104,6 +114,22 @@ jobs:
                 await github.rest.issues.createComment({
                   owner, repo, issue_number: existing.number,
                   body: `Finding remains present in workflow run ${context.runId}. Current evidence is retained with the run.`
+                });
+              }
+            }
+            for (const issue of issues) {
+              if (issue.state !== 'open' || issue.pull_request) continue;
+              const marker = (issue.body || '').match(/<!-- finding-id:([^ ]+) -->/);
+              const findingId = marker && marker[1];
+              const labels = (issue.labels || []).map(item => item.name || item);
+              if (findingId && !observed.has(findingId) && !labels.includes(closureReviewLabel)) {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issue.number, labels: [closureReviewLabel]
+                });
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issue.number,
+                  body: `This finding was not observed in workflow run ${context.runId}. `
+                    + 'A human must confirm remediation and approve closure; automation will not close the case.'
                 });
               }
             }

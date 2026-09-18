@@ -120,21 +120,21 @@
       "window_start": "2026-08-01T00:00:00Z",
       "window_end": "2026-08-31T23:59:59Z",
       "row_count": 4,
-      "sha256": "8560267ca0f9d693a277ffb46006a845dd80253ffd43fc7234cc07ca3273c92d"
+      "sha256": "470e1229dd1a084c8b5f472979fa84798f68c76f815a78b25e3dc1c4888cf705"
     },
     {
       "source_id": "github_aws_governance",
       "source_uri": "github://acme-fictional/pull-requests-and-environment-policy",
       "query": "review, approval, pipeline, identity, emergency, and outcome evidence for every production deployment",
       "extracted_at": "2026-09-01T01:16:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
-      "row_count": 3, "sha256": "7e93b2cd5859580608ae6dfc856ec5f83c7cd7eef9ba2824efee521962dd7288"
+      "row_count": 3, "sha256": "06da5671bdbc79066fc8a72a4a3565e9761681a13093633c9de6f28c7fea0282"
     },
     {
       "source_id": "gitlab_k8s_governance",
       "source_uri": "gitlab://acme-fictional/merge-requests-and-environment-policy",
       "query": "review, approval, pipeline, identity, emergency, and outcome evidence for every production deployment",
       "extracted_at": "2026-09-01T01:17:00Z", "window_start": "2026-08-01T00:00:00Z", "window_end": "2026-08-31T23:59:59Z",
-      "row_count": 3, "sha256": "001abaea86cda65763e8a50aae8ae9e715e7a6d69e77f55b7640ff685b6b68ea"
+      "row_count": 3, "sha256": "c98ae02ad4cce90bb303b732f788998bf41ed146ee00d2b40f5cfe2fec88d83c"
     },
     {
       "source_id": "control_definition_changes",

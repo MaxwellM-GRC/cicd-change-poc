@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 
 from .models import CloudChange, Deployment, Finding
 
@@ -15,17 +16,21 @@ def _yes(value: str | None) -> bool:
     return (value or "").lower() == "true"
 
 
+def _time(value: str) -> datetime:
+    """Parse the canonical UTC timestamps used by collectors and fixtures."""
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+
+
 def _finding(config: dict, rule: str, platform: str, object_type: str,
              object_id: str, deployment_id: str, detail: str) -> Finding:
     control = config["rules"][rule]
+    response = config["rule_responses"][rule]
     return Finding(
         control_id=config["control"]["id"], rule=rule,
         severity=control["severity"], platform=platform, object_type=object_type,
         object_id=object_id, deployment_id=deployment_id, detail=detail,
-        remediation="A human control owner must approve the remediation or risk decision.",
-        lookback="Review related production activity for the review period.",
-        root_cause="Determine why the required change-management control did not operate.",
-        closure_evidence="Attach evidence of the approved response and control correction.",
+        remediation=response["remediation"], lookback=response["lookback"],
+        root_cause=response["root_cause"], closure_evidence=response["closure_evidence"],
     )
 
 
@@ -52,27 +57,41 @@ def evaluate(config: dict, deployments: list[Deployment], changes: list[CloudCha
         approval = _one(feeds["approvals"], "deployment_id", dep.deployment_id)
         test = _one(feeds["tests"], "run_id", dep.run_id)
         artifact = _one(feeds["artifacts"], "run_id", dep.run_id)
-        matched = [item for item in by_platform_changes[dep.platform] if item.run_id == dep.run_id]
+        reconciliation_window = timedelta(
+            minutes=config["control_parameters"]["cloud_reconciliation_window_minutes"]
+        )
+        deployment_time = _time(dep.deployed_at)
+        matched = [
+            item for item in by_platform_changes[dep.platform]
+            if governance
+            and item.run_id == dep.run_id
+            and item.artifact_digest == dep.artifact_digest
+            and item.actor == governance["deployment_identity"]
+        ]
 
-        pr_ok = bool(governance and governance["pr_id"] and governance["pr_status"] == "approved")
+        pr_ok = bool(governance and governance["pr_id"] and governance["pr_status"] == "merged"
+                     and governance["merged_at"])
         review_ok = bool(governance and governance["review_status"] == "approved"
                          and governance["reviewer"] != governance["author"]
-                         and governance["reviewed_at"] <= dep.deployed_at)
+                         and governance["reviewed_at"] <= governance["merged_at"])
         test_ok = bool(test and test["status"] == "passed" and test["completed_at"] <= dep.deployed_at)
         sha_ok = bool(governance and governance["merged_sha"] == dep.commit_sha)
         pipeline_ok = bool(governance and _yes(governance["pipeline_authorized"]))
         approval_ok = bool(approval and approval["status"] == "approved"
                            and approval["approved_at"] <= dep.deployed_at)
-        separation_ok = bool(approval and governance and approval["approver"] != governance["author"])
+        separation_ok = bool(approval and governance
+                             and approval["approver"] not in {governance["author"], governance["deploy_initiator"]})
         identity_ok = bool(governance and governance["deployment_identity"] and _yes(governance["identity_authorized"]))
         emergency_ok = bool(governance and (
             not _yes(governance["is_emergency"])
-            or (governance["retrospective_review_at"] and governance["retrospective_review_at"] >= dep.deployed_at)
+            or (governance["retrospective_review_at"]
+                and deployment_time <= _time(governance["retrospective_review_at"])
+                <= deployment_time + timedelta(hours=config["control_parameters"]["emergency_review_sla_hours"])
+            )
         ))
         artifact_ok = bool(artifact and artifact["artifact_digest"] == dep.artifact_digest
                            and artifact["built_from_commit"] == dep.commit_sha)
-        if matched and any(item.artifact_digest != dep.artifact_digest for item in matched):
-            artifact_ok = False
+        matched = [item for item in matched if abs(_time(item.changed_at) - deployment_time) <= reconciliation_window]
         outcome_ok = bool(governance and (
             governance["outcome"] not in {"failed", "rolled_back"} or governance["incident_id"]
         ))
@@ -115,7 +134,16 @@ def evaluate(config: dict, deployments: list[Deployment], changes: list[CloudCha
             findings.append(_finding(config, "CM-13", item["platform"], "protection_setting", item["setting_id"], "",
                                      "Required branch or environment protection is not configured."))
     for change in changes:
-        if (change.platform, change.run_id) not in deployment_runs:
+        deployment = deployment_runs.get((change.platform, change.run_id))
+        authorized = bool(
+            deployment
+            and change.artifact_digest == deployment.artifact_digest
+            and abs(_time(change.changed_at) - _time(deployment.deployed_at))
+            <= timedelta(minutes=config["control_parameters"]["cloud_reconciliation_window_minutes"])
+            and (governance := _one(evidence[change.platform]["governance"], "deployment_id", deployment.deployment_id))
+            and change.actor == governance["deployment_identity"]
+        )
+        if not authorized:
             findings.append(_finding(config, "CM-11", change.platform, "cloud_change", change.event_id, "",
                                      f"Production change {change.action} on {change.resource} by {change.actor} does not map to CI/CD."))
     return findings, evaluations, len(matched_change_ids)

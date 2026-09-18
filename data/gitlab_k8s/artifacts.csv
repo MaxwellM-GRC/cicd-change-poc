@@ -1,0 +1,5 @@
+artifact_id,run_id,artifact_digest,built_from_commit,registry
+art-k8s-001,gl-pipe-701,sha256:k8s111,b111111111111111111111111111111111111111,registry.acme.invalid/fulfillment
+art-k8s-002,gl-pipe-702,sha256:k8s222,b222222222222222222222222222222222222222,registry.acme.invalid/inventory
+art-k8s-003,gl-pipe-703,sha256:k8s333,b333333333333333333333333333333333333333,registry.acme.invalid/pricing
+

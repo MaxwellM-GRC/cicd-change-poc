@@ -1,0 +1,5 @@
+approval_id,deployment_id,status,requester,approver,approved_at
+apr-k8s-001,gl-k8s-001,approved,nadia.ross,wei.chen,2026-08-07T10:55:00Z
+apr-k8s-002,gl-k8s-002,approved,sam.okoro,sam.okoro,2026-08-16T19:40:00Z
+apr-k8s-003,gl-k8s-003,approved,ines.silva,arun.patel,2026-08-24T16:12:00Z
+

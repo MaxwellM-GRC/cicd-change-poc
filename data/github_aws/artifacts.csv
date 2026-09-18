@@ -1,0 +1,5 @@
+artifact_id,run_id,artifact_digest,built_from_commit,registry
+art-aws-001,gha-run-501,sha256:aws111,a111111111111111111111111111111111111111,111111111111.dkr.ecr.us-west-2.amazonaws.com/checkout
+art-aws-002,gha-run-502,sha256:aws222,a222222222222222222222222222222222222222,111111111111.dkr.ecr.us-west-2.amazonaws.com/ledger
+art-aws-003,gha-run-503,sha256:aws-tampered,a333333333333333333333333333333333333333,111111111111.dkr.ecr.us-west-2.amazonaws.com/catalog
+

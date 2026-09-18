@@ -1,0 +1,5 @@
+commit_sha,repository,protected_branch,signature_verified
+b111111111111111111111111111111111111111,acme/fulfillment-api,true,true
+b222222222222222222222222222222222222222,acme/inventory-worker,true,true
+b333333333333333333333333333333333333333,acme/pricing-api,false,false
+

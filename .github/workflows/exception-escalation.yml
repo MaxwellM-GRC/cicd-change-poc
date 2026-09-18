@@ -1,0 +1,56 @@
+name: Exception Escalation
+
+on:
+  schedule:
+    - cron: "15 8 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  escalate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install PyYAML==6.0.2
+      - name: Read escalation policy
+        id: policy
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import yaml
+          policy = yaml.safe_load(open('config.yaml'))['remediation']
+          print(f"days={policy['issue_sla_days']}")
+          print(f"owner={policy['escalation_owner']}")
+          PY
+      - name: Escalate overdue open cases
+        uses: actions/github-script@v7
+        env:
+          SLA_DAYS: ${{ steps.policy.outputs.days }}
+          ESCALATION_OWNER: ${{ steps.policy.outputs.owner }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', labels: 'change-control-exception', per_page: 100
+            });
+            const sla = Number(process.env.SLA_DAYS || 5);
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+              const age = Math.floor((Date.now() - new Date(issue.created_at)) / 86400000);
+              const labels = issue.labels.map(label => label.name || label);
+              if (age > sla && !labels.includes('escalated')) {
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issue.number, labels: ['escalated']
+                });
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issue.number,
+                  body: `**Escalated:** open ${age} days, beyond the ${sla}-day SLA. ${process.env.ESCALATION_OWNER || ''}`
+                });
+              }
+            }
+

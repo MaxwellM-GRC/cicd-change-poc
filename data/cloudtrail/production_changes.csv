@@ -1,0 +1,6 @@
+event_id,changed_at,resource,action,actor,run_id,artifact_digest
+ct-9001,2026-08-05T14:10:06Z,arn:aws:ecs:us-west-2:111111111111:service/prod/checkout,UpdateService,gha-prod-role,gha-run-501,sha256:aws111
+ct-9002,2026-08-14T09:30:09Z,arn:aws:lambda:us-west-2:111111111111:function:prod-ledger,UpdateFunctionCode,gha-prod-role,gha-run-502,sha256:aws222
+ct-9003,2026-08-22T18:45:08Z,arn:aws:ecs:us-west-2:111111111111:service/prod/catalog,UpdateService,gha-prod-role,gha-run-503,sha256:aws333
+ct-9004,2026-08-27T02:17:11Z,arn:aws:iam::111111111111:role/prod-payment,PutRolePolicy,alex.admin,,
+

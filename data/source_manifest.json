@@ -1,0 +1,127 @@
+{
+  "manifest_version": "1.0",
+  "description": "Fictional point-in-time export provenance. Hashes bind each retained extract to this manifest.",
+  "sources": [
+    {
+      "source_id": "github_aws_deployments",
+      "source_uri": "github://acme-fictional/platform-api/deployments?environment=production",
+      "query": "all successful production environment deployment records in the review window",
+      "extracted_at": "2026-09-01T01:00:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "ff1dd4c0e0b7d48cc5bd674dcce063029a9a87401f32ae2176a2a97aee6fda3e"
+    },
+    {
+      "source_id": "github_aws_approvals",
+      "source_uri": "github://acme-fictional/actions/environment-approvals",
+      "query": "all production environment approval events for in-scope deployments",
+      "extracted_at": "2026-09-01T01:01:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "b5f45459d3ec3b0be5a3b27ea1b87c10444b1cdccf186f0995109da05cabd0b8"
+    },
+    {
+      "source_id": "github_aws_tests",
+      "source_uri": "github://acme-fictional/actions/check-runs",
+      "query": "required check-suite conclusions for every in-scope workflow run",
+      "extracted_at": "2026-09-01T01:02:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "b60e692eecbf58d3ca477ad8417b554f5af1295a731bf88a920e83b3e70f4ca0"
+    },
+    {
+      "source_id": "github_aws_commits",
+      "source_uri": "github://acme-fictional/repos/commits-and-rulesets",
+      "query": "commit and branch-protection evidence for every deployed SHA",
+      "extracted_at": "2026-09-01T01:03:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "6cd6eee523a22c79b34dcf9161ef91e17da5398cbb0a33befced79829f764c03"
+    },
+    {
+      "source_id": "github_aws_artifacts",
+      "source_uri": "aws://acme-fictional/ecr/image-manifests",
+      "query": "immutable ECR image digest and build provenance for each GitHub Actions run",
+      "extracted_at": "2026-09-01T01:04:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "e0a69cd9cfd550abab737cd0a21fd00e2a4ef68fc4734bc08cd22d87b6cfc08c"
+    },
+    {
+      "source_id": "aws_cloudtrail_changes",
+      "source_uri": "aws://acme-fictional/cloudtrail-lake/production",
+      "query": "all mutating AWS API events against tagged production resources in the review window",
+      "extracted_at": "2026-09-01T01:05:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 4,
+      "sha256": "698152b385f7b3ab827359ea61777ebd4113b4c129f3ae0158e21ff6b0c4924d"
+    },
+    {
+      "source_id": "gitlab_k8s_deployments",
+      "source_uri": "gitlab://acme-fictional/api/deployments?environment=production",
+      "query": "all successful production deployment records in the review window",
+      "extracted_at": "2026-09-01T01:10:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "0b9f2b39fe86ecfa26d0d438f53c46d08cb94ad1cbd65c75d57cda185f9e5cf6"
+    },
+    {
+      "source_id": "gitlab_k8s_approvals",
+      "source_uri": "gitlab://acme-fictional/api/merge-request-approvals",
+      "query": "all production approval records tied to in-scope deployment pipelines",
+      "extracted_at": "2026-09-01T01:11:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "3f5d8f8fb2839ab15371d499a1fc52ce5f3cc6b5363226cbc3b0fefc4d50407f"
+    },
+    {
+      "source_id": "gitlab_k8s_tests",
+      "source_uri": "gitlab://acme-fictional/api/pipeline-test-jobs",
+      "query": "required test-job conclusions for every in-scope pipeline",
+      "extracted_at": "2026-09-01T01:12:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "0dd7e540a90a7d5593f6da78bd76f9fb9878a1e3a9c3992a03d710b0d1c617c6"
+    },
+    {
+      "source_id": "gitlab_k8s_commits",
+      "source_uri": "gitlab://acme-fictional/api/commits-and-protected-branches",
+      "query": "commit signature and protected-branch evidence for every deployed SHA",
+      "extracted_at": "2026-09-01T01:13:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "34b4e9a0dc55635306a102205d27ae6605c16184d5bfe61c008339da95954efc"
+    },
+    {
+      "source_id": "gitlab_k8s_artifacts",
+      "source_uri": "oci://registry.acme.invalid/production",
+      "query": "immutable OCI digest and build provenance for every in-scope pipeline",
+      "extracted_at": "2026-09-01T01:14:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 3,
+      "sha256": "2f6b559e1ae0e113b48ef5e1e8eccc61167fe8740d6b14ba3b8b622331cbe467"
+    },
+    {
+      "source_id": "kubernetes_audit_changes",
+      "source_uri": "kubernetes://acme-fictional/prod-cluster/audit-log",
+      "query": "all mutating requests to production namespaces in the review window",
+      "extracted_at": "2026-09-01T01:15:00Z",
+      "window_start": "2026-08-01T00:00:00Z",
+      "window_end": "2026-08-31T23:59:59Z",
+      "row_count": 4,
+      "sha256": "80ca839bfde657b607e7069b616e4552c26322dfd0345f8c1270826e6c186241"
+    }
+  ]
+}
+

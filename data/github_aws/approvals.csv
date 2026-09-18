@@ -1,0 +1,5 @@
+approval_id,deployment_id,status,requester,approver,approved_at
+apr-aws-001,gha-aws-001,approved,elena.park,marcus.lee,2026-08-05T13:42:00Z
+apr-aws-002,gha-aws-002,rejected,devon.king,priya.shah,2026-08-14T09:15:00Z
+apr-aws-003,gha-aws-003,approved,omar.haddad,jules.martin,2026-08-22T18:10:00Z
+

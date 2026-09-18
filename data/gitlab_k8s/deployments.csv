@@ -1,0 +1,5 @@
+deployment_id,environment,deployed_at,commit_sha,artifact_digest,run_id,actor
+gl-k8s-001,production,2026-08-07T11:20:00Z,b111111111111111111111111111111111111111,sha256:k8s111,gl-pipe-701,gitlab-runner
+gl-k8s-002,production,2026-08-16T20:05:00Z,b222222222222222222222222222222222222222,sha256:k8s222,gl-pipe-702,gitlab-runner
+gl-k8s-003,production,2026-08-24T16:40:00Z,b333333333333333333333333333333333333333,sha256:k8s333,gl-pipe-703,gitlab-runner
+

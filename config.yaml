@@ -1,0 +1,138 @@
+control:
+  id: ITGC-CM-01
+  name: Production CI/CD Change Management
+  objective: >-
+    Production changes are authorized, tested, traceable to an immutable source
+    commit and artifact, and deployed only through approved CI/CD pathways.
+  frequency: Daily
+  population: All production deployments and all production cloud control-plane changes
+  owner: "@MaxwellM-GRC"
+
+review_window:
+  start: "2026-08-01T00:00:00Z"
+  end: "2026-08-31T23:59:59Z"
+
+sources:
+  - id: github_aws_deployments
+    kind: deployments
+    platform: github_aws
+    path: data/github_aws/deployments.csv
+    primary_key: deployment_id
+    required_columns: [deployment_id, environment, deployed_at, commit_sha, artifact_digest, run_id, actor]
+  - id: github_aws_approvals
+    kind: approvals
+    platform: github_aws
+    path: data/github_aws/approvals.csv
+    primary_key: approval_id
+    required_columns: [approval_id, deployment_id, status, requester, approver, approved_at]
+  - id: github_aws_tests
+    kind: tests
+    platform: github_aws
+    path: data/github_aws/tests.csv
+    primary_key: run_id
+    required_columns: [run_id, status, completed_at]
+  - id: github_aws_commits
+    kind: commits
+    platform: github_aws
+    path: data/github_aws/commits.csv
+    primary_key: commit_sha
+    required_columns: [commit_sha, repository, protected_branch, signature_verified]
+  - id: github_aws_artifacts
+    kind: artifacts
+    platform: github_aws
+    path: data/github_aws/artifacts.csv
+    primary_key: artifact_id
+    required_columns: [artifact_id, run_id, artifact_digest, built_from_commit, registry]
+  - id: aws_cloudtrail_changes
+    kind: cloud_changes
+    platform: github_aws
+    path: data/cloudtrail/production_changes.csv
+    primary_key: event_id
+    required_columns: [event_id, changed_at, resource, action, actor, run_id, artifact_digest]
+  - id: gitlab_k8s_deployments
+    kind: deployments
+    platform: gitlab_k8s
+    path: data/gitlab_k8s/deployments.csv
+    primary_key: deployment_id
+    required_columns: [deployment_id, environment, deployed_at, commit_sha, artifact_digest, run_id, actor]
+  - id: gitlab_k8s_approvals
+    kind: approvals
+    platform: gitlab_k8s
+    path: data/gitlab_k8s/approvals.csv
+    primary_key: approval_id
+    required_columns: [approval_id, deployment_id, status, requester, approver, approved_at]
+  - id: gitlab_k8s_tests
+    kind: tests
+    platform: gitlab_k8s
+    path: data/gitlab_k8s/tests.csv
+    primary_key: run_id
+    required_columns: [run_id, status, completed_at]
+  - id: gitlab_k8s_commits
+    kind: commits
+    platform: gitlab_k8s
+    path: data/gitlab_k8s/commits.csv
+    primary_key: commit_sha
+    required_columns: [commit_sha, repository, protected_branch, signature_verified]
+  - id: gitlab_k8s_artifacts
+    kind: artifacts
+    platform: gitlab_k8s
+    path: data/gitlab_k8s/artifacts.csv
+    primary_key: artifact_id
+    required_columns: [artifact_id, run_id, artifact_digest, built_from_commit, registry]
+  - id: kubernetes_audit_changes
+    kind: cloud_changes
+    platform: gitlab_k8s
+    path: data/kubernetes/production_changes.csv
+    primary_key: event_id
+    required_columns: [event_id, changed_at, resource, action, actor, run_id, artifact_digest]
+
+rules:
+  CM01_APPROVAL:
+    severity: critical
+    assertion: Deployment has an independent, approved authorization completed before production deployment.
+    remediation: Obtain retrospective risk acceptance or roll back the change; route future releases through the required approval gate.
+    lookback: Review activity and security telemetry from deployment time through containment for unauthorized impact.
+    root_cause: Determine how the production environment protection or approval gate was bypassed.
+    closure_evidence: Approved change record or rollback evidence, impact assessment, and corrected gate configuration.
+  CM02_TESTING:
+    severity: high
+    assertion: Required CI tests passed before production deployment.
+    remediation: Human change owner decides whether to roll back, hot-fix, or accept risk after reviewing failed or missing tests.
+    lookback: Re-run the required test suite against the deployed commit and assess production impact.
+    root_cause: Determine why a failed, late, or missing test result did not block deployment.
+    closure_evidence: Passing test run tied to the commit plus reviewer-approved disposition of the deployed version.
+  CM03_COMMIT:
+    severity: high
+    assertion: Deployment traces to a commit on a protected branch with verified provenance.
+    remediation: Human reviewer validates source ownership and selects rollback or formal exception treatment.
+    lookback: Compare the deployed artifact to repository contents and inspect commit activity.
+    root_cause: Determine why branch or signature controls did not prevent the release.
+    closure_evidence: Verified commit provenance, protected-branch evidence, and approved remediation decision.
+  CM04_ARTIFACT:
+    severity: critical
+    assertion: Deployed digest exactly matches an immutable artifact built from the approved commit and run.
+    remediation: Quarantine the artifact; human release owner approves rollback or redeployment of a verified digest.
+    lookback: Inspect registry access and deployments using the suspect digest.
+    root_cause: Determine whether build, registry, or deployment substitution controls failed.
+    closure_evidence: Registry attestation, digest match, and human approval for the selected corrective action.
+  CM05_DEPLOYMENT_TRACE:
+    severity: high
+    assertion: Each CI/CD deployment is represented by a matching production control-plane change.
+    remediation: Investigate the missing execution evidence and have the release owner approve rollback, redeployment, or documented exception.
+    lookback: Query control-plane audit logs for the full review window and validate resource state.
+    root_cause: Determine whether logging, deployment execution, or evidence collection failed.
+    closure_evidence: Matched immutable audit event or approved exception with resource-state evidence.
+  CM06_OUT_OF_BAND:
+    severity: critical
+    assertion: Every production control-plane change maps to an authorized CI/CD deployment.
+    remediation: Contain the change if unsafe; a human control owner approves rollback, adoption into code, or time-bounded exception.
+    lookback: Review actor activity and all related production changes during the review window.
+    root_cause: Determine how direct production access bypassed CI/CD and whether privileges must be removed.
+    closure_evidence: Audit-log investigation, approved disposition, state reconciliation, and access-control correction.
+
+remediation:
+  mode: human_approval_required
+  issue_sla_days: 5
+  escalation_owner: "@MaxwellM-GRC"
+  prohibited_actions: [automatic_rollback, automatic_resource_mutation, automatic_exception_closure]
+

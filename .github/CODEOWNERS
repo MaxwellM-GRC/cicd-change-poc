@@ -1,0 +1,8 @@
+# Replace with an independent governance team in an organization repository.
+*                          @MaxwellM-GRC
+/config.yaml               @MaxwellM-GRC
+/src/detection.py          @MaxwellM-GRC
+/src/integrity.py          @MaxwellM-GRC
+/data/source_manifest.json @MaxwellM-GRC
+/.github/workflows/        @MaxwellM-GRC
+

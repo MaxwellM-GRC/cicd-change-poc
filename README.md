@@ -1,128 +1,135 @@
-# Cloud-Native CI/CD Change Management — Proof of Concept
+# Cloud CI/CD Change Management — Proof of Concept
 
 ![CI](https://github.com/MaxwellM-GRC/cicd-change-poc/actions/workflows/ci.yml/badge.svg)
 
-An RCM-ready automated control that tests the **complete population** of
-production deployments and production control-plane changes across two
-fictional paths:
+**Automated detection of production cloud changes that were not properly approved, tested, or traceable to the release pipeline that made them.**
 
-- GitHub Actions → AWS (workflow approvals, checks, commits, ECR digests, and CloudTrail)
-- GitLab CI → Kubernetes (merge approvals, pipeline tests, commits, OCI digests, and audit logs)
+Production changes move quickly. A deployment may look legitimate because it appears in GitHub Actions or GitLab CI, while a failed test, missing approval, or substituted software artifact is hidden in a separate record. At the same time, someone may make a direct AWS or Kubernetes change that never touches the pipeline at all.
 
-It proves each production deployment was independently approved, tested, tied
-to a governed commit, and executed with the expected immutable artifact. It
-also reverses the test: every cloud-side mutation must map back to CI/CD, which
-surfaces console, CLI, or cluster-admin changes that bypassed the pipeline.
+This POC brings those records together. It checks the full set of fictional production deployments and cloud changes, then produces an audit-ready exception log and one follow-up case for each issue it finds.
 
-> **Sanitized:** Acme, all people, account IDs, resources, repositories, and
-> source URIs are fictional. No employer, client, or production data appears here.
+> ⚠️ **Sanitized.** All names, people, repositories, cloud resources, account numbers, and source locations in this repository are fictional. No real employer, client, or production data is included.
 
-## What this control tests
+---
 
-| Rule | Assertion | Severity |
-|---|---|---|
-| `CM01_APPROVAL` | Independent approval completed before deployment | Critical |
-| `CM02_TESTING` | Required tests passed before deployment | High |
-| `CM03_COMMIT` | Commit is verified and on a protected branch | High |
-| `CM04_ARTIFACT` | Deployed digest matches the artifact built from that commit and run | Critical |
-| `CM05_DEPLOYMENT_TRACE` | CI/CD deployment has matching cloud execution evidence | High |
-| `CM06_OUT_OF_BAND` | Cloud change maps back to an in-scope CI/CD deployment | Critical |
+## The problem it catches
 
-The fixtures deliberately include one rejected AWS approval, one failed test,
-one artifact substitution, one GitLab self-approval, one ungoverned commit, and
-two out-of-band cloud changes. These produce **7 stable, per-finding exception
-cases** while two baseline deployments pass every assertion.
+The sample data includes two fictional release paths:
 
-## Evidence flow
+- **GitHub Actions → AWS** — release approvals, test results, source commits, image records, and AWS CloudTrail changes.
+- **GitLab CI → Kubernetes** — merge approvals, pipeline tests, source commits, image records, and Kubernetes audit-log changes.
+
+Reviewing each source on its own can make a change look clean. For example, a deployment record may exist even though the required test failed, or an AWS role may be changed directly from the console with no deployment record at all.
+
+The sample deliberately includes seven issues:
+
+- a rejected approval and a self-approval;
+- a failed test;
+- a mismatch between the deployed software and the recorded build artifact;
+- a source commit that lacks the expected protection evidence; and
+- two direct cloud changes with no corresponding release pipeline.
+
+Only by connecting the release record to its approval, test, source, artifact, and cloud-side activity does the full picture emerge.
+
+## What it checks
+
+| Rule | Plain-English check | Flags | Severity |
+|---|---|---|---|
+| CM01 | Was the change independently approved first? | Missing, rejected, late, or self-approval | Critical |
+| CM02 | Did required testing pass before deployment? | Missing, failed, or late test result | High |
+| CM03 | Did the release come from a governed source change? | Missing, unprotected, or unverified commit | High |
+| CM04 | Was the exact approved software artifact deployed? | Missing or mismatched software digest | Critical |
+| CM05 | Did the pipeline release actually reach production? | No matching cloud execution record | High |
+| CM06 | Did every production cloud change come through CI/CD? | Direct AWS or Kubernetes change outside the pipeline | Critical |
+
+## How it works
 
 ```text
-GitHub/GitLab deployment population ─┐
-approvals + tests + commits + images ├─ provenance validation ─ full-population join
-CloudTrail/Kubernetes audit events ──┘                              │
-                                                                    ├─ control_evidence.json
-                                                                    ├─ exceptions.csv
-                                                                    └─ one human-owned case/finding
+GitHub / GitLab deployments ─┐
+Approvals, tests, commits ───┤
+Build-artifact records ──────┼─► validate inputs ─► connect evidence ─► report
+AWS / Kubernetes changes ────┘                         every change       issues
 ```
 
-Every input is declared in `data/source_manifest.json` with a source URI,
-extraction query, timestamp, review window, row count, and SHA-256. A missing,
-changed, incomplete, duplicated, or out-of-window source makes the run fail
-closed with exit code `3`; the control does not claim a clean result from
-untrusted evidence.
+- **Input validation** checks that every expected file is present, complete, and unchanged since it was collected. If a source is missing or altered, the review stops rather than reporting a misleading clean result.
+- **Evidence matching** follows each deployment from approval through test, source code, built software, and its production cloud activity.
+- **Reverse matching** starts with each AWS or Kubernetes production change and asks whether it can be traced back to a release pipeline.
+- **Reporting** writes a simple exception log, a detailed run summary, and one human-owned case for every actionable finding.
 
-The output contract preserves:
-
-- a deterministic run ID bound to the config and all source hashes;
-- source provenance and input validation results;
-- population counts for deployments and cloud changes;
-- one assertion ledger row for every production deployment;
-- evidence references for approval, test, commit, artifact, and cloud event;
-- stable finding IDs and prescribed response fields; and
-- one Markdown case per finding with human approval required for disposition and closure.
-
-See [Evidence contract](docs/evidence_contract.md) and
-[RCM and control narrative](docs/rcm_and_control_narrative.md).
+Every run records where its data came from, the period reviewed, row counts, and a file fingerprint. This lets a reviewer see what was checked and re-perform the same review later.
 
 ## Quick start
 
 ```bash
 python -m venv .venv
 .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest -q
+
+# Run the review and write evidence to output/
 .venv/bin/python -m src.main
+
+# Run the tests
+.venv/bin/python -m pytest -q
 ```
 
-Generated evidence is written to `output/` (gitignored):
+## Sample output
+
+```text
+CLOUD CI/CD CHANGE-MANAGEMENT CONTROL
+Production deployments evaluated: 6
+Production cloud changes reviewed: 8
+Population reconciled: True
+Findings: 7 ({'critical': 5, 'high': 2})
+
+[CRITICAL] CM01_APPROVAL github_aws gha-aws-002
+           No independent approved authorization completed before deployment.
+[HIGH]     CM02_TESTING github_aws gha-aws-003
+           Required tests were missing, failed, or completed after deployment.
+[CRITICAL] CM06_OUT_OF_BAND github_aws ct-9004
+           Production change ... does not map to any in-scope CI/CD deployment.
+```
+
+The generated files are the evidence package:
 
 ```text
 output/
-  control_evidence.json   complete machine-readable run package
-  exceptions.csv         one row per finding
-  cases/CM-*.md           one independently trackable exception case per finding
+  control_evidence.json   Detailed run summary, population counts, and source checks
+  exceptions.csv          One straightforward row per finding
+  cases/CM-*.md           One follow-up case per finding, with closure checklist
 ```
 
-Exit codes are `0` for a valid completed run, `2` when
-`--fail-on-findings` is supplied and findings exist, and `3` when provenance or
-input-integrity validation fails.
+The review exits with `0` when it runs successfully. With `--fail-on-findings`, it exits with `2` when it detects exceptions. An input problem returns `3`, so a failed evidence check cannot be mistaken for a clean review.
 
 ## Continuous monitoring
 
-`control-monitor.yml` runs on a weekday schedule, on demand, and on changes to
-`main`. It always uploads the evidence package before raising an alert. Each
-finding is maintained as its own GitHub Issue using the stable finding ID; an
-open issue receives observation comments, and a recurring closed issue is
-reopened. The run then turns red when findings exist so notification is not
-silently lost.
+This is designed to run repeatedly, not just once.
 
-`exception-escalation.yml` ages open cases and flags those past the configured
-five-day SLA. Automation can detect, route, recommend, and escalate. It cannot
-roll back production, mutate resources, approve its own advice, or close an
-exception. Those are explicit human decisions.
+- **CI** (`ci.yml`) runs the test suite and a sample review on every change. It shows whether the POC itself is working correctly.
+- **Change Control Monitor** (`control-monitor.yml`) runs every weekday, on demand, and after changes reach `main`. It saves the evidence first, opens or updates one GitHub Issue for each finding, then turns red when issues exist.
+- **Exception Escalation** (`exception-escalation.yml`) flags open cases that pass the configured five-day response target.
+
+A red Change Control Monitor run is expected with the included sample data: the sample is intentionally seeded with exceptions. The red status is the alert; the uploaded evidence and individual Issues show what needs attention.
+
+Automation can identify and route an issue, but it cannot make a production change, approve a risk decision, or close a case. Those steps require a human owner.
 
 ## Repository map
 
 ```text
-config.yaml                 control, rule response, and source contract
-data/source_manifest.json   source provenance and content hashes
-data/github_aws/            fictional GitHub Actions/AWS evidence
-data/gitlab_k8s/            fictional GitLab CI/Kubernetes evidence
-data/cloudtrail/            complete fictional AWS production-change population
-data/kubernetes/            complete fictional Kubernetes mutation population
-src/integrity.py            fail-closed manifest/schema/count/hash checks
-src/loaders.py              normalized source ingestion
-src/detection.py            full-population correlation and CM01–CM06 rules
-src/reporting.py            evidence package, exception log, individual cases
-tests/                      provenance, rules, reconciliation, outputs, run IDs
-docs/                       RCM, evidence contract, and production design
+config.yaml                 Control rules, response guidance, and source mappings
+data/                       Fictional GitHub, GitLab, AWS, and Kubernetes evidence
+data/source_manifest.json   Source details, row counts, and file fingerprints
+src/                        Input checks, evidence matching, detection, reporting
+tests/                      Tests for rules, source checks, and output reconciliation
+docs/                       Control narrative, evidence contract, production notes
 ```
 
-## Scope and reliance
+## Control context
 
-This is a proof of concept, not a live AWS, GitHub, GitLab, or Kubernetes
-integration. Production deployment requires authoritative API collectors,
-immutable evidence retention, service-account hardening, organization-specific
-approval semantics, and independent validation of the population queries.
-Those boundaries are detailed in [Production design](docs/production_design.md).
+This POC supports a change-management IT general control: production changes should be approved, tested, traceable, and made through an authorized process. It is organized so a reviewer can inspect the source population, see how each test was performed, and follow an exception from detection through human resolution.
 
-MIT licensed.
+For detailed material, see [Evidence contract](docs/evidence_contract.md), [RCM and control narrative](docs/rcm_and_control_narrative.md), and [Production design](docs/production_design.md).
 
+## Scope note
+
+This is a focused proof of concept using static fictional files. A production implementation would collect evidence directly from the relevant GitHub, GitLab, AWS, Kubernetes, and artifact-registry services; retain it under the organization's evidence policy; and confirm population coverage for every in-scope environment.
+
+MIT — see [LICENSE](LICENSE).
